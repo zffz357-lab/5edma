@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#0b172a"/>
+  <circle cx="256" cy="256" r="205" fill="none" stroke="#f58220" stroke-width="12"/>
+  <text x="256" y="245" text-anchor="middle" font-family="Arial, sans-serif" font-size="76" font-weight="bold" fill="#f58220">5EDMA</text>
+  <text x="256" y="315" text-anchor="middle" font-family="Arial, sans-serif" font-size="43" font-weight="bold" fill="#ffffff">شركة خدمة</text>
+  <path d="M175 365 H337" stroke="#f58220" stroke-width="9" stroke-linecap="round"/>
+</svg>

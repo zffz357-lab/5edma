@@ -1,0 +1,290 @@
+<!DOCTYPE html>  <html lang="ar" dir="rtl">  <head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  <meta name="theme-color" content="#102b46">  <title>شركة خدمة | 5EDMA</title>  <style>  
+  
+* {  
+    box-sizing: border-box;  
+}  
+  
+body {  
+    margin: 0;  
+    font-family: Arial, sans-serif;  
+    background: #f2f5f9;  
+    color: #102b46;  
+}  
+  
+header {  
+    background: #102b46;  
+    color: white;  
+    text-align: center;  
+    padding: 35px 15px;  
+    border-radius: 0 0 30px 30px;  
+}  
+  
+.logo {  
+    color: #ff9d27;  
+    font-size: 40px;  
+    font-weight: bold;  
+    letter-spacing: 2px;  
+}  
+  
+header h1 {  
+    margin: 10px 0;  
+    font-size: 27px;  
+}  
+  
+header p {  
+    color: #dce7f2;  
+    font-size: 15px;  
+}  
+  
+.container {  
+    max-width: 480px;  
+    margin: auto;  
+    padding: 25px 18px;  
+}  
+  
+.title {  
+    text-align: center;  
+    margin-bottom: 25px;  
+}  
+  
+.title h2 {  
+    font-size: 23px;  
+}  
+  
+.title p {  
+    color: #777;  
+}  
+  
+.card {  
+    background: white;  
+    border-radius: 22px;  
+    padding: 22px;  
+    margin-bottom: 17px;  
+    display: flex;  
+    align-items: center;  
+    gap: 18px;  
+    box-shadow: 0 5px 15px #00000010;  
+    cursor: pointer;  
+    border: 2px solid transparent;  
+}  
+  
+.card:active {  
+    border-color: #ff9d27;  
+    transform: scale(0.98);  
+}  
+  
+.icon {  
+    width: 70px;  
+    height: 70px;  
+    min-width: 70px;  
+    border-radius: 18px;  
+    background: #fff1dd;  
+    display: flex;  
+    align-items: center;  
+    justify-content: center;  
+    font-size: 40px;  
+}  
+  
+.details {  
+    text-align: right;  
+}  
+  
+.details h3 {  
+    margin: 0 0 8px;  
+    font-size: 18px;  
+}  
+  
+.details p {  
+    margin: 0;  
+    color: #777;  
+    font-size: 13px;  
+}  
+  
+.arrow {  
+    margin-right: auto;  
+    font-size: 25px;  
+    color: #ff9d27;  
+}  
+  
+/* خدمات قادمة */  
+  
+.coming {  
+    background: #e8edf3;  
+    border: 2px dashed #aab7c5;  
+    cursor: default;  
+    opacity: 0.9;  
+}  
+  
+.coming .icon {  
+    background: #dce4ec;  
+}  
+  
+.coming .arrow {  
+    display: none;  
+}  
+  
+.badge {  
+    display: inline-block;  
+    background: #ff9d27;  
+    color: white;  
+    padding: 5px 10px;  
+    border-radius: 20px;  
+    font-size: 11px;  
+    margin-top: 8px;  
+}  
+  
+footer {  
+    text-align: center;  
+    padding: 25px;  
+    color: #777;  
+    font-size: 14px;  
+}  
+  
+</style> 
+<link rel="manifest" href="./manifest.json">
+</head>  <body>  <header>  <div class="logo">5EDMA</div>  
+
+<h1>شركة خدمة</h1>  
+
+<p>خدماتنا بين إيديك أينما كنت</p>
+
+</header>  <div class="container">  <div class="title">  
+
+    <h2>أهلاً بك 👋</h2>  
+
+    <p>اختر الخدمة التي تريدها</p>  
+
+</div>  
+
+<div id="services"></div>
+
+<a href="https://www.facebook.com/share/19stzrHgA7/"
+   target="_blank"
+   rel="noopener noreferrer"
+   style="text-decoration:none; color:inherit;">
+
+    <div class="card">
+
+        <div class="icon">💼</div>
+
+        <div class="details">
+
+            <h3>فرص عمل في اللاذقية</h3>
+
+            <p>وظائف وفرص عمل ومنح جديدة</p>
+
+        </div>
+
+        <div class="arrow">‹</div>
+
+    </div>
+
+</a>  
+
+<div class="card coming">  
+
+    <div class="icon">✨</div>  
+
+    <div class="details">  
+
+        <h3>خدمات أكثر قريباً</h3>  
+
+        <p>نستعد لتقديم المزيد من الخدمات لكم</p>  
+
+        <span class="badge">قريباً</span>  
+
+    </div>  
+
+</div>
+
+</div>  <footer>  شركة خدمة | 5EDMA  
+
+<br><br>  
+
+راحتك وخدمتك أولويتنا ❤️
+
+</footer>  <script>  
+  
+// إعدادات الشركة  
+  
+const settings = {  
+  
+    phone: "963932054064",  
+  
+    services: [  
+  
+        {  
+            name: "طلب توصيل",  
+            description: "توصيل طلبات وأغراض",  
+            icon: "📦",  
+            message: "أرغب بطلب خدمة توصيل طلبات وأغراض"  
+        },  
+  
+        {  
+            name: "طلب تكسي",  
+            description: "اطلب سيارة لتوصيلك",  
+            icon: "🚕",  
+            message: "أرغب بطلب تكسي"  
+        },  
+  
+        {  
+            name: "طلب سوزوكي",  
+            description: "خدمة نقل وتوصيل",  
+            icon: "🛵",  
+            message: "أرغب بطلب سوزوكي"  
+        }  
+  
+    ]  
+  
+};  
+  
+// عرض الخدمات  
+  
+const container = document.getElementById("services");  
+  
+settings.services.forEach(service => {  
+  
+    const card = document.createElement("div");  
+  
+    card.className = "card";  
+  
+    card.innerHTML = `  
+  
+        <div class="icon">${service.icon}</div>  
+  
+        <div class="details">  
+  
+            <h3>${service.name}</h3>  
+  
+            <p>${service.description}</p>  
+  
+        </div>  
+  
+        <div class="arrow">‹</div>  
+  
+    `;  
+  
+    card.onclick = function() {  
+  
+        const message =  
+        "مرحباً، أنا زبون من تطبيق شركة خدمة 5EDMA.\n" +  
+        service.message;  
+  
+        const url =  
+        "https://wa.me/" +  
+        settings.phone +  
+        "?text=" +  
+        encodeURIComponent(message);  
+  
+        window.location.href = url;  
+  
+    };  
+  
+    container.appendChild(card);  
+  
+});  
+  
+</script>  </body>  
+</html>

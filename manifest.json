@@ -1,0 +1,18 @@
+{
+  "name": "شركة خدمة | 5EDMA",
+  "short_name": "5EDMA",
+  "description": "خدمات التوصيل والتكسي والسوزوكي",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b172a",
+  "theme_color": "#0b172a",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
