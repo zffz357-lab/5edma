@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090d19">
+<title>لعبة XO</title>
+<style>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+body {
+font-family: Arial;
+background: #090d19;
+color: white;
+min-height: 100vh;
+padding: 15px;
+}
+.container {
+max-width: 450px;
+margin: auto;
+text-align: center;
+}
+h1 {
+font-size: 36px;
+color: #42e8ff;
+margin: 20px;
+}
+  .subtitle {
+color: #aab4cc;
+margin-bottom: 20px;
+}
+.panel {
+background: #151d30;
+border: 1px solid #263650;
+border-radius: 18px;
+padding: 16px;
+margin-bottom: 16px;
+}
+button {
+font-family: inherit;
+cursor: pointer;
+border: none;
+}
+.mode-btn {
+width: 100%;
+padding: 15px;
+margin: 6px 0;
+border-radius: 12px;
+font-size: 17px;
+font-weight: bold;
+color: white;
+background: #253653;
+}
+.mode-btn.active {
+background: linear-gradient(120deg,#087fba,#693ee8);
+}
+  .scores {
+display: flex;
+justify-content: space-around;
+gap: 8px;
+}
+.score {
+flex: 1;
+background: #202c44;
+padding: 12px 5px;
+border-radius: 12px;
+}
+.score strong {
+display: block;
+font-size: 25px;
+margin-top: 7px;
+}
+.x-color {
+color: #36e6ff;
+}
+.o-color {
+color: #ff62b7;
+}
+.board {
+display: grid;
+grid-template-columns: repeat(3,1fr);
+gap: 10px;
+margin: 20px auto;
+max-width: 340px;
+}
+  .cell {
+aspect-ratio: 1;
+border-radius: 17px;
+background: #19253b;
+border: 2px solid #2a3d5c;
+font-size: 55px;
+font-weight: bold;
+transition: .2s;
+}
+.cell:disabled {
+cursor: default;
+}
+.cell.x {
+color: #36e6ff;
+text-shadow: 0 0 15px #00d9ff;
+}
+.cell.o {
+color: #ff62b7;
+text-shadow: 0 0 15px #ff299d;
+}
+.cell.winner {
+background: #29465c;
+border-color: #42e8ff;
+}
+  .status {
+font-size: 19px;
+font-weight: bold;
+min-height: 30px;
+margin: 15px 0;
+color: #ffe27a;
+}
+.action-btn {
+background: linear-gradient(120deg,#087fba,#693ee8);
+color: white;
+padding: 14px 22px;
+border-radius: 12px;
+font-size: 17px;
+font-weight: bold;
+margin: 5px;
+}
+.hidden {
+display: none;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>⭕ لعبة XO ❌</h1>
+<p class="subtitle">تحدّى صديقك أو الكمبيوتر الذكي</p>
+<div class="panel" id="menu">
+<h3>اختر طريقة اللعب</h3>
+
+<button class="mode-btn active"
+onclick="startGame('computer')">
+🤖 ضد الكمبيوتر الذكي
+</button>
+
+<button class="mode-btn"
+onclick="startGame('friend')">
+👥 لاعبان على نفس الهاتف
+</button>
+</div>
+
+<div class="panel">
+<div class="scores">
+<div class="score">
+X
+<strong id="scoreX">0</strong>
+</div>
+<div class="score">
+تعادل
+<strong id="scoreDraw">0</strong>
+</div>
+<div class="score">
+O
+<strong id="scoreO">0</strong>
+</div>
+</div>
+</div>
+<div class="status" id="status">
+اختر طريقة اللعب
+</div>
+
+<div class="board" id="board">
+<button class="cell" onclick="play(0)"></button>
+<button class="cell" onclick="play(1)"></button>
+<button class="cell" onclick="play(2)"></button>
+<button class="cell" onclick="play(3)"></button>
+<button class="cell" onclick="play(4)"></button>
+<button class="cell" onclick="play(5)"></button>
+<button class="cell" onclick="play(6)"></button>
+<button class="cell" onclick="play(7)"></button>
+<button class="cell" onclick="play(8)"></button>
+</div>
+
+<button class="action-btn"
+onclick="resetGame()">
+🔄 مباراة جديدة
+</button>
+
+<button class="action-btn"
+onclick="location.href='index.html'">
+🏠 قسم الألعاب
+</button>
+</div>
+
+<script>
+let board = Array(9).fill("");
+let mode = "computer";
+let current = "X";
+let active = false;
+let scores = {X:0,O:0,draw:0};
+  const wins = [
+[0,1,2],[3,4,5],[6,7,8],
+[0,3,6],[1,4,7],[2,5,8],
+[0,4,8],[2,4,6]
+];
+
+function startGame(type) {
+mode = type;
+document.getElementById("menu").classList.add("hidden");
+resetGame();
+}
+
+function resetGame() {
+board = Array(9).fill("");
+current = "X";
+active = true;
+drawBoard();
+status("دور اللاعب X");
+}
+
+function status(msg) {
+document.getElementById("status").textContent = msg;
+}
+
+function drawBoard() {
+document.querySelectorAll(".cell").forEach((c,i)=>{
+c.textContent = board[i];
+c.className = "cell";
+if(board[i]) c.classList.add(board[i].toLowerCase());
+c.disabled = !active || board[i] !== "";
+});
+}
+
+function winner(b) {
+return wins.find(line =>
+line.every(i => b[i] === b[line[0]] && b[i] !== "")
+);
+}
+
+function play(i) {
+if(!active || board[i]) return;
+board[i] = current;
+finishTurn();
+}
+
+function finishTurn() {
+let win = winner(board);
+if(win) {
+active = false;
+scores[current]++;
+win.forEach(i =>
+document.querySelectorAll(".cell")[i].classList.add("winner")
+);
+status("🏆 الفائز هو "+current);
+updateScores();
+drawBoard();
+return;
+}
+if(board.every(Boolean)) {
+active = false;
+scores.draw++;
+status("🤝 تعادل!");
+updateScores();
+drawBoard();
+return;
+}
+current = current === "X" ? "O" : "X";
+drawBoard();
+status("دور اللاعب "+current);
+if(mode === "computer" && current === "O") {
+active = false;
+setTimeout(computerMove,450);
+}
+}
+
+function computerMove() {
+let best = -Infinity;
+let move = -1;
+
+for(let i=0;i<9;i++) {
+if(board[i]) continue;
+board[i] = "O";
+let score = minimax(board,0,false);
+board[i] = "";
+if(score > best) {
+best = score;
+move = i;
+}
+}
+if(move !== -1) board[move] = "O";
+active = true;
+finishTurn();
+}
+
+function minimax(b,depth,isMax) {
+let w = winner(b);
+if(w) return b[w[0]] === "O" ? 10-depth : depth-10;
+if(b.every(Boolean)) return 0;
+
+let best = isMax ? -Infinity : Infinity;
+for(let i=0;i<9;i++) {
+if(b[i]) continue;
+b[i] = isMax ? "O" : "X";
+let score = minimax(b,depth+1,!isMax);
+b[i] = "";
+best = isMax ? Math.max(best,score) : Math.min(best,score);
+}
+return best;
+}
+
+function updateScores() {
+document.getElementById("scoreX").textContent = scores.X;
+document.getElementById("scoreO").textContent = scores.O;
+document.getElementById("scoreDraw").textContent = scores.draw;
+}
+</script>
+</body>
+</html>
