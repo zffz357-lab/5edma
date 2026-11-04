@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>السيارة الهاربة</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+background:#101827;
+color:white;
+font-family:Arial;
+text-align:center;
+overflow-x:hidden;
+}
+h2{color:#facc15}
+#scoreboard{
+display:flex;
+justify-content:space-around;
+padding:10px;
+font-size:18px;
+}
+#score{color:#facc15}
+#coins{color:#4ade80}
+#game{
+position:relative;
+width:100%;
+max-width:420px;
+height:60vh;
+min-height:350px;
+margin:auto;
+overflow:hidden;
+background:#397b45;
+border:4px solid #aaa;
+border-radius:14px;
+}
+
+#road{
+position:absolute;
+width:78%;
+height:100%;
+left:11%;
+background:#454545;
+border-left:5px solid white;
+border-right:5px solid white;
+overflow:hidden;
+z-index:1;
+}
+
+#road .enemy{
+position:absolute;
+z-index:20;
+display:flex;
+visibility:visible;
+font-size:45px;
+}
+
+#car{
+z-index:100;
+}
+
+#car{
+position:absolute;
+bottom:15px;
+left:50%;
+transform:translateX(-50%);
+z-index:100;
+width:65px;
+height:90px;
+font-size:55px;
+display:flex;
+align-items:center;
+justify-content:center;
+visibility:visible;
+transition:left .12s;
+}
+#controls{
+display:flex;
+direction:ltr;
+justify-content:center;
+gap:35px;
+margin:12px;
+}
+.control{
+width:85px;
+height:60px;
+border:0;
+border-radius:15px;
+background:#facc15;
+font-size:32px;
+}
+.menuButtons{
+display:flex;
+justify-content:center;
+gap:10px;
+flex-wrap:wrap;
+}
+.menuButtons button{
+border:0;
+border-radius:12px;
+padding:12px 18px;
+font-size:16px;
+font-weight:bold;
+background:#2563eb;
+color:white;
+}
+  #over{
+display:none;
+position:absolute;
+inset:0;
+background:#000e;
+z-index:20;
+padding-top:90px;
+}
+#over h1{color:#facc15}
+#over button{
+padding:14px 25px;
+border:0;
+border-radius:12px;
+background:#22c55e;
+font-size:19px;
+font-weight:bold;
+}
+#shop{
+display:none;
+position:fixed;
+inset:0;
+background:#000e;
+z-index:50;
+padding:15px;
+overflow-y:auto;
+}
+.shopBox{
+max-width:420px;
+margin:20px auto;
+background:#1e293b;
+border:2px solid #facc15;
+border-radius:18px;
+padding:15px;
+}
+.shopItem{
+display:flex;
+align-items:center;
+justify-content:space-between;
+background:#334155;
+padding:12px;
+margin:10px 0;
+border-radius:12px;
+gap:8px;
+}
+.shopCar{font-size:35px}
+.shopInfo{flex:1;text-align:right}
+.shopInfo small{color:#facc15}
+.shopItem button{
+border:0;
+border-radius:9px;
+padding:10px;
+background:#facc15;
+font-weight:bold;
+}
+#shopClose{
+background:#ef4444;
+color:white;
+padding:12px 25px;
+border:0;
+border-radius:10px;
+font-size:17px;
+}
+#game.shake{animation:shake .25s}
+@keyframes shake{
+0%,100%{transform:translateX(0)}
+25%{transform:translateX(-8px)}
+75%{transform:translateX(8px)}
+}
+</style>
+</head>
+<body>
+
+<h2>🏎️ السيارة الهاربة</h2>
+
+<div id="scoreboard">
+<div id="score">النقاط: 0</div>
+<div id="coins">🪙 العملات: 0</div>
+</div>
+
+<div id="game">
+
+<div id="road"></div>
+
+<div id="car">🚗</div>
+
+<div id="over">
+<h1>💥 حادث!</h1>
+<h2 id="result"></h2>
+<button onclick="start()">🔄 العب مجدداً</button>
+</div>
+
+</div>
+
+<div id="controls">
+<button class="control" onclick="move(-1)">⬅️</button>
+<button class="control" onclick="move(1)">➡️</button>
+</div>
+
+<div class="menuButtons">
+<button onclick="openShop()">🏪 متجر السيارات</button>
+</div>
+
+<div style="margin:12px;color:#bbb;font-size:13px">
+تجنب السيارات واجمع العملات لشراء سيارات جديدة!
+</div>
+
+<div id="shop">
+<div class="shopBox">
+
+<h2>🏪 معرض السيارات</h2>
+
+<h3 id="shopCoins">🪙 العملات: 0</h3>
+
+<div id="carList"></div>
+
+<button id="shopClose" onclick="closeShop()">
+إغلاق المتجر
+</button>
+
+</div>
+</div>
+
+<script>
+
+const game=document.getElementById("game");
+const road=document.getElementById("road");
+const car=document.getElementById("car");
+
+let lane=1;
+let score=0;
+let coins=Number(localStorage.getItem("carCoins")||0);
+let speed=5;
+let enemies=[];
+let stripes=[];
+let trees=[];
+let running=false;
+let lastEnemy=0;
+let lastTree=0;
+let frame;
+  const cars=[
+{name:"السيارة الحمراء",emoji:"🚗",price:0},
+{name:"السيارة الرياضية",emoji:"🏎️",price:100},
+{name:"سيارة الشرطة",emoji:"🚓",price:200},
+{name:"سيارة الأجرة",emoji:"🚕",price:300},
+{name:"السيارة الفخمة",emoji:"🚘",price:500},
+{name:"سيارة السباق",emoji:"🏁",price:800},
+{name:"الشاحنة",emoji:"🚚",price:1200}
+];
+
+let owned=JSON.parse(localStorage.getItem("ownedCars")||"[0]");
+let selected=Number(localStorage.getItem("selectedCar")||0);
+
+function saveData(){
+localStorage.setItem("carCoins",coins);
+localStorage.setItem("ownedCars",JSON.stringify(owned));
+localStorage.setItem("selectedCar",selected);
+}
+
+function updateCoins(){
+document.getElementById("coins").textContent="🪙 العملات: "+coins;
+document.getElementById("shopCoins").textContent="🪙 العملات: "+coins;
+}
+
+function move(dir){
+if(!running)return;
+lane=Math.max(0,Math.min(2,lane+dir));
+car.style.left=[16.66,50,83.33][lane]+"%";
+}
+
+function openShop(){
+running=false;
+document.getElementById("shop").style.display="block";
+showCars();
+}
+
+function closeShop(){
+document.getElementById("shop").style.display="none";
+start();
+}
+
+function showCars(){
+
+let list=document.getElementById("carList");
+list.innerHTML="";
+
+cars.forEach((c,i)=>{
+
+let isOwned=owned.includes(i);
+let isSelected=selected===i;
+
+let item=document.createElement("div");
+item.className="shopItem";
+
+item.innerHTML=`
+<div class="shopCar">${c.emoji}</div>
+<div class="shopInfo">
+<strong>${c.name}</strong><br>
+<small>${c.price===0?"مجانية":"السعر: "+c.price+" عملة"}</small>
+</div>
+<button>${isSelected?"مختارة":isOwned?"اختيار": "شراء"}</button>
+`;
+
+item.querySelector("button").onclick=()=>{
+
+if(isOwned){
+selected=i;
+saveData();
+car.textContent=c.emoji;
+showCars();
+}else if(coins>=c.price){
+coins-=c.price;
+owned.push(i);
+selected=i;
+saveData();
+updateCoins();
+car.textContent=c.emoji;
+showCars();
+}else{
+alert("عملاتك غير كافية! اجمع المزيد من العملات.");
+}
+
+};
+
+list.appendChild(item);
+
+});
+
+  }
+  function createStripes(){
+
+stripes.forEach(s=>s.remove());
+stripes=[];
+
+for(let i=0;i<3;i++){
+for(let x of [33.33,66.66]){
+
+let s=document.createElement("div");
+s.className="stripe";
+s.style.left=x+"%";
+s.style.top=(i*110-100)+"px";
+
+road.appendChild(s);
+stripes.push(s);
+
+}
+}
+}
+
+function createEnemy(){
+
+let e=document.createElement("div");
+e.className="enemy";
+
+let enemyCars=["🚙","🚕","🚐","🚓"];
+e.textContent=enemyCars[Math.floor(Math.random()*enemyCars.length)];
+
+let l=Math.floor(Math.random()*3);
+
+e.style.left=[16.66,50,83.33][l]+"%";
+e.style.transform="translateX(-50%)";
+e.style.top="-100px";
+
+road.appendChild(e);
+
+enemies.push({
+el:e,
+lane:l,
+y:-100
+});
+
+}
+
+function createTree(){
+
+let t=document.createElement("div");
+t.className="tree";
+t.textContent="🌳";
+
+let side=Math.random()<.5?"2%":"96%";
+t.style.left=side;
+t.style.top="-50px";
+
+game.appendChild(t);
+
+trees.push({el:t,y:-50});
+
+}
+
+function start(){
+
+cancelAnimationFrame(frame);
+
+enemies.forEach(e=>e.el.remove());
+trees.forEach(t=>t.el.remove());
+
+enemies=[];
+trees=[];
+
+lane=1;
+score=0;
+speed=5;
+lastEnemy=0;
+lastTree=0;
+
+running=true;
+
+car.style.left="50%";
+car.textContent=cars[selected].emoji;
+
+document.getElementById("over").style.display="none";
+document.getElementById("score").textContent="النقاط: 0";
+
+createStripes();
+
+frame=requestAnimationFrame(loop);
+
+}
+
+function end(){
+
+if(!running)return;
+
+running=false;
+cancelAnimationFrame(frame);
+
+game.classList.add("shake");
+
+setTimeout(()=>{
+game.classList.remove("shake");
+},300);
+
+if(score>Number(localStorage.getItem("carBest")||0)){
+localStorage.setItem("carBest",score);
+}
+
+document.getElementById("result").textContent=
+"نتيجتك: "+score+" نقطة!";
+
+document.getElementById("over").style.display="block";
+
+    }
+  function loop(time){
+
+if(!running)return;
+
+stripes.forEach(s=>{
+let y=parseFloat(s.style.top);
+y+=speed;
+
+if(y>game.clientHeight)y=-100;
+
+s.style.top=y+"px";
+});
+
+if(time-lastEnemy>Math.max(600,1200-score*4)){
+createEnemy();
+lastEnemy=time;
+}
+
+if(time-lastTree>500){
+createTree();
+lastTree=time;
+}
+
+for(let i=enemies.length-1;i>=0;i--){
+
+let e=enemies[i];
+
+e.y+=speed;
+e.el.style.top=e.y+"px";
+
+if(
+e.lane===lane &&
+e.y>game.clientHeight-125 &&
+e.y<game.clientHeight-15
+){
+end();
+return;
+}
+
+if(e.y>game.clientHeight){
+
+e.el.remove();
+enemies.splice(i,1);
+
+score++;
+coins++;
+
+speed=5+Math.min(12,score*.12);
+
+document.getElementById("score").textContent=
+"النقاط: "+score;
+
+saveData();
+updateCoins();
+
+}
+
+}
+
+for(let i=trees.length-1;i>=0;i--){
+
+let t=trees[i];
+
+t.y+=speed;
+t.el.style.top=t.y+"px";
+
+if(t.y>game.clientHeight){
+t.el.remove();
+trees.splice(i,1);
+}
+
+}
+
+frame=requestAnimationFrame(loop);
+}
+
+document.addEventListener("keydown",e=>{
+if(e.key==="ArrowLeft")move(-1);
+if(e.key==="ArrowRight")move(1);
+});
+
+let touchX=0;
+
+game.addEventListener("touchstart",e=>{
+touchX=e.touches[0].clientX;
+},{passive:true});
+
+game.addEventListener("touchend",e=>{
+let dx=e.changedTouches[0].clientX-touchX;
+if(dx>30)move(1);
+if(dx< -30)move(-1);
+},{passive:true});
+
+updateCoins();
+showCars();
+start();
+
+</script>
+</body>
+</html>

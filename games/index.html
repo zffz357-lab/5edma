@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>عالم الألعاب | 5EDMA</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f6fa;
+    color: #222;
+}
+
+header {
+    background: linear-gradient(135deg, #172b4d, #315b91);
+    color: white;
+    text-align: center;
+    padding: 35px 15px;
+    border-radius: 0 0 28px 28px;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ffad35;
+}
+
+header h1 {
+    margin: 12px 0 8px;
+}
+
+header p {
+    margin: 0;
+    color: #e1e9f5;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+}
+
+.section-title {
+    margin: 10px 0 18px;
+}
+
+.section-title h2 {
+    margin-bottom: 7px;
+}
+
+.section-title p {
+    color: #777;
+    font-size: 14px;
+}
+
+.game-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: white;
+    padding: 16px;
+    margin-bottom: 15px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px #0000000c;
+    text-decoration: none;
+    color: inherit;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.game-card:active {
+    transform: scale(0.98);
+    border-color: #ff9d27;
+}
+
+.game-icon {
+    width: 75px;
+    height: 75px;
+    min-width: 75px;
+    border-radius: 18px;
+    background: #fff0d9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+}
+
+.game-info {
+    flex: 1;
+}
+
+.game-info h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+}
+
+.game-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #777;
+    line-height: 1.6;
+}
+
+.arrow {
+    color: #ff9d27;
+    font-size: 28px;
+}
+
+.coming {
+    opacity: 0.75;
+    background: #e9edf2;
+    border: 2px dashed #b7c1ce;
+}
+
+.coming .game-icon {
+    background: #dce4ec;
+}
+
+.badge {
+    display: inline-block;
+    margin-top: 7px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #ff9d27;
+    color: white;
+    font-size: 11px;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #888;
+    font-size: 13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">5EDMA 🎮</div>
+    <h1>عالم الألعاب</h1>
+    <p>اختر لعبتك واستمتع بوقتك</p>
+</header>
+
+<div class="container">
+
+    <div class="section-title">
+        <h2>🎯 الألعاب المتاحة</h2>
+        <p>اضغط على اللعبة التي تريد لعبها</p>
+    </div>
+
+    <a class="game-card" href="./car-game.html">
+
+        <div class="game-icon">🏎️</div>
+
+        <div class="game-info">
+            <h3>لعبة السيارات</h3>
+            <p>تجاوز السيارات واجمع النقاط وافتح سيارات جديدة</p>
+            <span class="badge">العب الآن</span>
+        </div>
+
+        <div class="arrow">‹</div>
+
+    </a>
+
+    <div class="section-title">
+        <h2>🚧 ألعاب قادمة</h2>
+    </div>
+
+    <div class="game-card coming">
+        <div class="game-icon">🃏</div>
+        <div class="game-info">
+            <h3>لعبة طرنيب</h3>
+            <p>تحديات الورق مع الأصدقاء</p>
+            <span class="badge">قريباً</span>
+        </div>
+    </div>
+
+    <div class="game-card coming">
+        <div class="game-icon">🧩</div>
+        <div class="game-info">
+            <h3>ألعاب الذكاء</h3>
+            <p>اختبر ذكاءك وحل الألغاز</p>
+            <span class="badge">قريباً</span>
+        </div>
+    </div>
+
+    <div class="game-card coming">
+        <div class="game-icon">🏁</div>
+        <div class="game-info">
+            <h3>ألعاب السباق</h3>
+            <p>منافسات وتحديات جديدة</p>
+            <span class="badge">قريباً</span>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    شركة خدمة | 5EDMA ❤️
+</footer>
+
+</body>
+</html>
