@@ -1,0 +1,160 @@
+<!DOCTYPE html> <html lang="ar" 
+dir="rtl"> <head> <meta charset="UTF-8"> 
+<meta name="viewport" 
+content="width=device-width, 
+initial-scale=1.0"> <title>إدارة 
+المهنيين | 5EDMA</title> <style> * {
+    box-sizing: border-box;
+}
+body { margin: 0; padding: 20px; 
+    background: #0b172a; color: white; 
+    font-family: Arial, sans-serif;
+}
+h1 { text-align: center; color: #fff;
+}
+.subtitle { text-align: center; color: 
+    #b8c7d9;
+}
+.container { max-width: 650px; margin: 
+    25px auto;
+}
+</style> </head> <body> <h1>🛠️ إدارة 
+المهنيين</h1> <p class="subtitle">إضافة 
+وتعديل بيانات أصحاب المهن والخدمات 
+المنزلية</p> <div class="container"> 
+<div class="form-box">
+    <h2>إضافة معلم جديد</h2> <label>اسم 
+    المعلم</label> <input type="text" 
+    id="name" placeholder="مثلاً: أحمد 
+    محمد"> <label>المهنة</label> <select 
+    id="profession">
+        <option value="">اختر 
+        المهنة</option> <option>معلم 
+        صحي</option> 
+        <option>كهربجي</option> 
+        <option>نجار</option> 
+        <option>حداد</option> 
+        <option>دهان</option> 
+        <option>مبلّط</option> 
+        <option>فني تكييف 
+        وتبريد</option> <option>فني 
+        أجهزة كهربائية</option> 
+        <option>فني ألمنيوم</option> 
+        <option>فني زجاج</option> 
+        <option>عامل تنظيف</option> 
+        <option>مكافحة حشرات</option> 
+        <option>نقل عفش</option> 
+        <option>مهنة أخرى</option>
+    </select> <label>رقم الهاتف</label> 
+    <input type="tel" id="phone" 
+    placeholder="رقم الهاتف"> <label>رقم 
+    واتساب</label> <input type="tel" 
+    id="whatsapp" placeholder="رقم 
+    واتساب"> <label>المنطقة</label> 
+    <input type="text" id="area" 
+    placeholder="مثلاً: دمشق"> <label>وصف 
+    إضافي</label> <textarea 
+    id="description" placeholder="تفاصيل 
+    عن خبرة المعلم وخدماته"></textarea> 
+    <button type="button" 
+    id="saveBtn">حفظ المعلم</button>
+</div> <style> .form-box { background: 
+    #172a43;
+    padding: 20px; border-radius: 14px; 
+    margin-top: 25px;
+}
+.form-box h2 { text-align: center; 
+    margin-bottom: 25px;
+}
+label { display: block; margin: 15px 0 
+    7px; color: #dce8f5;
+}
+input, select, textarea { width: 100%; 
+    padding: 13px; border: 1px solid 
+    #38516e;
+    border-radius: 8px; background: 
+    #0b172a;
+    color: white; font-size: 16px; 
+    outline: none;
+}
+textarea { min-height: 90px; resize: 
+    vertical;
+}
+button { width: 100%; padding: 14px; 
+    margin-top: 22px; border: 0; 
+    border-radius: 8px; background: 
+    #16865d;
+    color: white; font-size: 17px; 
+    font-weight: bold;
+}
+</style>
+
+</div>
+</div>
+
+ <script 
+src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+<script> const SUPABASE_URL = 
+"https://mankbdsgolwabyjlhgbq.supabase.co"; 
+const SUPABASE_KEY = 
+"sb_publishable_TyeZfdpFSx0dTmZcZVrGTQ_gaVhF92q"; const 
+supabaseClient = 
+window.supabase.createClient(
+    SUPABASE_URL, SUPABASE_KEY ); 
+</script>
+<script> 
+document.getElementById("saveBtn").addEventListener("click", 
+async function () {
+
+ const name = 
+    document.getElementById("name").value.trim(); 
+    const profession = 
+    document.getElementById("profession").value; 
+    const phone = 
+    document.getElementById("phone").value.trim(); 
+    const whatsapp = 
+    document.getElementById("whatsapp").value.trim(); 
+    const area = 
+    document.getElementById("area").value.trim(); 
+    const description = 
+    document.getElementById("description").value.trim(); 
+    if (!name || !profession || !phone) 
+    {
+      
+alert("يرجى إدخال اسم المعلم والمهنة ورقم الهاتف"); return;
+
+    }
+    const { error } = await 
+    supabaseClient
+        .from("section_items") 
+        .insert([{
+            title: 
+            name, description: 
+            profession + " - " + 
+            description, phone: phone, 
+            whatsapp: whatsapp, area: 
+            area, is_active: true
+        }]);
+    
+
+if (error) { alert("تعذر حفظ المعلم: " + error.message); return; }
+
+
+  
+    alert("تم حفظ المعلم بنجاح"); 
+    document.getElementById("name").value 
+    = ""; 
+    document.getElementById("profession").value 
+    = ""; 
+    document.getElementById("phone").value 
+    = ""; 
+    document.getElementById("whatsapp").value 
+    = ""; 
+    document.getElementById("area").value 
+    = ""; 
+    document.getElementById("description").value 
+    = "";
+});
+</script>
+</body>
+ </html> 

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة إدارة 5EDMA</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #172033;
+}
+
+header {
+    background: #123b35;
+    color: white;
+    padding: 22px;
+}
+
+header h1 {
+    margin: 0 0 8px;
+    font-size: 24px;
+}
+
+header p {
+    margin: 0;
+    color: #cbded8;
+}
+
+main {
+    max-width: 900px;
+    margin: 25px auto;
+    padding: 15px;
+}
+
+.welcome {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+.welcome h2 {
+    margin-top: 0;
+}
+
+.sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+}
+
+.section {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+}
+
+.section .icon {
+    font-size: 32px;
+}
+
+.section h3 {
+    margin: 12px 0 8px;
+}
+
+.section p {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+button {
+    width: 100%;
+    border: none;
+    border-radius: 9px;
+    background: #176b56;
+    color: white;
+    padding: 12px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+footer {
+    text-align: center;
+    color: #64748b;
+    padding: 25px;
+    font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+
+<div id="loginBox" 
+style="max-width:400px;margin:70px 
+auto;background:white;padding:25px;border-radius:15px;text-align:center">
+    <h2>تسجيل دخول المدير 🔐</h2> <input 
+    id="email" type="email" 
+    placeholder="البريد الإلكتروني" 
+    style="width:100%;padding:13px;margin:10px 
+    0"> <input id="password" 
+    type="password" placeholder="كلمة 
+    المرور" 
+    style="width:100%;padding:13px;margin:10px 
+    0"> <button 
+    id="loginBtn">دخول</button> <p 
+    id="loginMessage"></p>
+</div>
+
+<div id="adminPanel" style="display:none">
+<header>
+    <h1>لوحة إدارة 5EDMA</h1>
+    <p>إدارة أقسام وخدمات تطبيق شركة خدمة</p>
+</header>
+
+<main>
+
+    <div class="welcome">
+        <h2>أهلاً بك في لوحة الإدارة 👋</h2>
+        <p>
+            من هون رح تقدر تدير أقسام التطبيق،
+            وتضيف المحتوى وتعدّله وتتحكّم بظهوره.
+        </p>
+    </div>
+
+    <div class="sections">
+
+
+<div class="section"> <div 
+    class="icon">🛠️</div> <h3>المهن 
+    والخدمات</h3> <p>إدارة المهنيين 
+    والخدمات المنزلية وأرقام 
+    التواصل.</p> <button 
+    onclick="window.location.href='craftsmen.html'">إدارة 
+    المهن</button>
+</div>
+
+
+        <div class="section">
+            <div class="icon">🎮</div>
+            <h3>الألعاب</h3>
+            <p>إدارة الألعاب والأقسام الفرعية وترتيبها.</p>
+            <button>إدارة الألعاب</button>
+        </div>
+
+        <div class="section">
+            <div class="icon">🚚</div>
+            <h3>التوصيل</h3>
+            <p>إدارة أنواع التوصيل والخدمات المتاحة.</p>
+            <button>إدارة التوصيل</button>
+        </div>
+
+
+
+
+<div class="section"> <div 
+    class="icon">💼</div> <h3>فرص 
+    العمل</h3> <p>إضافة فرص العمل 
+    وتعديلها وإيقاف الإعلانات 
+    المنتهية.</p> <button>إدارة فرص 
+    العمل</button>
+</div>
+
+
+
+
+    </div>
+
+</main>
+
+<footer>
+    5EDMA | لوحة الإدارة
+</footer>
+</div>
+
+
+<script 
+src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+ <script> const 
+SUPABASE_URL = 
+"https://mankbdsgolwabyjlhgbq.supabase.co"; 
+const SUPABASE_KEY = "sb_publishable_TyeZfdpFSx0dTmZcZVrGTQ_gaVhF92q"; const 
+supabaseClient = 
+window.supabase.createClient(
+    SUPABASE_URL, SUPABASE_KEY ); 
+</script>
+
+
+
+<script>
+const loginBtn = document.getElementById("loginBtn");
+
+loginBtn.addEventListener("click", async function () {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const message = document.getElementById("loginMessage");
+
+    message.textContent = "جاري تسجيل الدخول...";
+
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) throw error;
+
+        const { data: admin, error: adminError } = await supabaseClient
+            .from("admin_users")
+            .select("user_id")
+            .eq("user_id", data.user.id)
+            .maybeSingle();
+
+        if (adminError) throw adminError;
+
+        if (!admin) {
+            await supabaseClient.auth.signOut();
+            message.textContent = "هذا الحساب ليس لديه صلاحية الإدارة";
+            return;
+        }
+
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+
+    } catch (error) {
+        message.textContent = "خطأ: " + error.message;
+    }
+});
+</script>
+
+</body>
+</html>
