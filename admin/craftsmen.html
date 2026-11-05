@@ -127,7 +127,10 @@ alert("يرجى إدخال اسم المعلم والمهنة ورقم الها�
     const { error } = await 
     supabaseClient
         .from("section_items") 
-        .insert([{
+        
+.insert([{
+    section_id: "877ae885-4a63-4b17-9848-d1c555c1526f",
+
             title: 
             name, description: 
             profession + " - " + 
