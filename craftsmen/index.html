@@ -117,6 +117,25 @@ header p {
     color: #777;
     padding: 25px 10px;
 }
+
+.category {
+    width: 100%;
+    text-align: right;
+    font-family: Arial, sans-serif;
+    color: #102b46;
+}
+.back-button {
+    width: 100%;
+    border: 0;
+    background: #102b46;
+    color: white;
+    padding: 14px;
+    border-radius: 13px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
 </style>
 </head>
 
@@ -178,78 +197,135 @@ function cleanPhone(value) {
     return String(value || "").replace(/[^\d+]/g, "");
 }
 
+
+let selectedProfession = null;
+
+function getProfession(person) {
+    return (person.description || "").split(" - ")[0] || "مهنة أخرى";
+}
+
 function showCraftsmen() {
     const term = search.value.trim().toLowerCase();
 
+    if (!selectedProfession) {
+        const groups = {};
+
+        craftsmen.forEach(function(person) {
+            const profession = getProfession(person);
+            if (!groups[profession]) groups[profession] = [];
+            groups[profession].push(person);
+        });
+
+        const names = Object.keys(groups).filter(function(name) {
+            return name.toLowerCase().includes(term) ||
+                groups[name].some(function(person) {
+                    return [person.title, person.area, person.description]
+                        .join(" ").toLowerCase().includes(term);
+                });
+        }).sort();
+
+        count.textContent = "عدد المهن: " + names.length;
+
+        if (names.length === 0) {
+            list.innerHTML = '<div class="message">ما لقينا مهن مطابقة للبحث.</div>';
+            return;
+        }
+
+        list.innerHTML = names.map(function(name) {
+            return `
+                <button class="card category" data-profession="${escapeHTML(name)}">
+                    <h3>🛠️ ${escapeHTML(name)}</h3>
+                    <div class="info">عدد المعلمين: ${groups[name].length}</div>
+                    <div class="info">اضغط لعرض المعلمين ←</div>
+                </button>
+            `;
+        }).join("");
+
+        return;
+    }
+
     const filtered = craftsmen.filter(function(person) {
         const description = person.description || "";
-        const profession = description.split(" - ")[0] || "";
+        const parts = description.split(" - ");
+        const profession = parts[0] || "مهنة أخرى";
+
+        if (profession !== selectedProfession) return false;
 
         const text = [
             person.title,
             profession,
             person.area,
-            description
+            parts.slice(1).join(" - ")
         ].join(" ").toLowerCase();
 
         return text.includes(term);
     });
 
-    count.textContent = "عدد المعلمين: " + filtered.length;
+    count.textContent = selectedProfession + " — عدد المعلمين: " + filtered.length;
 
     if (filtered.length === 0) {
-        list.innerHTML = '<div class="message">ما لقينا معلمين مطابقين للبحث.</div>';
+        list.innerHTML = `
+            <button class="back-button" data-back>← رجوع إلى المهن</button>
+            <div class="message">ما لقينا معلمين مطابقين للبحث.</div>
+        `;
         return;
     }
 
-    list.innerHTML = filtered.map(function(person) {
-        const description = person.description || "";
-        const parts = description.split(" - ");
-        const profession = parts[0] || "مهنة";
-        const extra = parts.slice(1).join(" - ");
+    list.innerHTML = `
+        <button class="back-button" data-back>← رجوع إلى المهن</button>
+        ${filtered.map(function(person) {
+            const description = person.description || "";
+            const parts = description.split(" - ");
+            const extra = parts.slice(1).join(" - ");
+            const phone = cleanPhone(person.phone);
+            const whatsapp = cleanPhone(person.whatsapp || person.phone);
 
-        const phone = cleanPhone(person.phone);
-        const whatsapp = cleanPhone(person.whatsapp || person.phone);
+            return `
+                <div class="card">
+                    <h3>${escapeHTML(person.title)}</h3>
+                    <div class="profession">🛠️ ${escapeHTML(selectedProfession)}</div>
 
-        return `
-            <div class="card">
-                <h3>${escapeHTML(person.title)}</h3>
-
-                <div class="profession">
-                    🛠️ ${escapeHTML(profession)}
-                </div>
-
-                ${person.area ? `
-                    <div class="info">
-                        📍 المنطقة: ${escapeHTML(person.area)}
-                    </div>
-                ` : ""}
-
-                ${extra ? `
-                    <div class="info">
-                        ${escapeHTML(extra)}
-                    </div>
-                ` : ""}
-
-                <div class="buttons">
-                    ${phone ? `
-                        <a class="call" href="tel:${escapeHTML(phone)}">
-                            📞 اتصال
-                        </a>
+                    ${person.area ? `
+                        <div class="info">📍 المنطقة: ${escapeHTML(person.area)}</div>
                     ` : ""}
 
-                    ${whatsapp ? `
-                        <a class="whatsapp"
-                           href="https://wa.me/${escapeHTML(whatsapp.replace("+", ""))}"
-                           target="_blank">
-                            واتساب
-                        </a>
+                    ${extra ? `
+                        <div class="info">${escapeHTML(extra)}</div>
                     ` : ""}
+
+                    <div class="buttons">
+                        ${phone ? `
+                            <a class="call" href="tel:${escapeHTML(phone)}">📞 اتصال</a>
+                        ` : ""}
+
+                        ${whatsapp ? `
+                            <a class="whatsapp"
+                               href="https://wa.me/${escapeHTML(whatsapp.replace("+", ""))}"
+                               target="_blank">واتساب</a>
+                        ` : ""}
+                    </div>
                 </div>
-            </div>
-        `;
-    }).join("");
+            `;
+        }).join("")}
+    `;
 }
+
+list.addEventListener("click", function(event) {
+    const back = event.target.closest("[data-back]");
+    if (back) {
+        selectedProfession = null;
+        search.value = "";
+        showCraftsmen();
+        return;
+    }
+
+    const category = event.target.closest("[data-profession]");
+    if (category) {
+        selectedProfession = category.dataset.profession;
+        search.value = "";
+        showCraftsmen();
+    }
+});
 
 async function loadCraftsmen() {
     const { data, error } = await supabaseClient
