@@ -208,7 +208,27 @@ function showCraftsmen() {
     const term = search.value.trim().toLowerCase();
 
     if (!selectedProfession) {
+        const professions = [
+            "معلم صحي",
+            "كهربجي",
+            "نجار",
+            "حداد",
+            "دهان",
+            "مبلّط",
+            "فني تكييف وتبريد",
+            "فني أجهزة كهربائية",
+            "فني ألمنيوم",
+            "فني زجاج",
+            "عامل تنظيف",
+            "مكافحة حشرات",
+            "نقل عفش",
+            "مهنة أخرى"
+        ];
+
         const groups = {};
+        professions.forEach(function(name) {
+            groups[name] = [];
+        });
 
         craftsmen.forEach(function(person) {
             const profession = getProfession(person);
