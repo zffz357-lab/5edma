@@ -18,7 +18,21 @@ h1 { text-align: center; color: #fff;
 .container { max-width: 650px; margin:
     25px auto;
 }
-</style> </head> <body> <h1>🛠️ إدارة
+
+.container { display:none; }
+#loginBox input { width:100%;padding:13px;margin-top:8px;background:#0b172a;color:white;border:1px solid #38516e;border-radius:8px;font-size:16px; }
+#loginBox label { display:block;margin-top:15px; }
+</style> </head> <body> 
+<div id="loginBox" style="max-width:450px;margin:35px auto;background:#172a43;padding:22px;border-radius:14px">
+<h2 style="text-align:center">🔐 دخول الإدارة</h2>
+<label>البريد الإلكتروني</label>
+<input type="email" id="adminEmail" placeholder="البريد الإلكتروني">
+<label>كلمة المرور</label>
+<input type="password" id="adminPassword" placeholder="كلمة المرور">
+<button type="button" id="adminLoginBtn">تسجيل الدخول</button>
+<p id="loginMessage" style="text-align:center"></p>
+</div>
+<h1>🛠️ إدارة
 المهنيين</h1> <p class="subtitle">إضافة
 وتعديل بيانات أصحاب المهن والخدمات
 المنزلية</p> <div class="container">
@@ -108,6 +122,53 @@ window.supabase.createClient(
     SUPABASE_URL, SUPABASE_KEY );
 </script>
 <script>
+
+async function checkAdminAccess() {
+    const loginBox = document.getElementById("loginBox");
+    const container = document.querySelector(".container");
+    const message = document.getElementById("loginMessage");
+
+    async function verifyAdmin(user) {
+        const { data, error } = await supabaseClient
+            .from("admin_users")
+            .select("user_id")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+        if (error) throw error;
+        if (!data) {
+            await supabaseClient.auth.signOut();
+            throw new Error("هذا الحساب ليس لديه صلاحية الإدارة");
+        }
+
+        loginBox.style.display = "none";
+        container.style.display = "block";
+    }
+
+    try {
+        const { data } = await supabaseClient.auth.getSession();
+        if (data.session) await verifyAdmin(data.session.user);
+    } catch (error) {
+        message.textContent = error.message;
+    }
+
+    document.getElementById("adminLoginBtn").addEventListener("click", async function() {
+        const email = document.getElementById("adminEmail").value.trim();
+        const password = document.getElementById("adminPassword").value;
+        message.textContent = "جاري تسجيل الدخول...";
+
+        try {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            await verifyAdmin(data.user);
+        } catch (error) {
+            message.textContent = "خطأ: " + error.message;
+        }
+    });
+}
+
+checkAdminAccess();
+
 document.getElementById("saveBtn").addEventListener("click",
 async function () {
 
