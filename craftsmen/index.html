@@ -201,7 +201,23 @@ function cleanPhone(value) {
 let selectedProfession = null;
 
 function getProfession(person) {
-    return (person.description || "").split(" - ")[0] || "مهنة أخرى";
+    const original = (person.description || "").split(" - ")[0].trim() || "مهنة أخرى";
+
+    const aliases = {
+        "معلم صحي": "سبّاك",
+        "كهربجي": "كهربائي",
+        "نجار": "نجّار",
+        "حداد": "حدّاد",
+        "دهان": "دهّان",
+        "مبلّط": "فنّي بلاط وسيراميك",
+        "فني تكييف وتبريد": "فنّي تكييف وتبريد",
+        "فني أجهزة كهربائية": "فنّي صيانة أجهزة كهربائية",
+        "فني ألمنيوم": "فنّي ألمنيوم",
+        "فني زجاج": "فنّي زجاج",
+        "نقل عفش": "نقل أثاث"
+    };
+
+    return aliases[original] || original;
 }
 
 function showCraftsmen() {
@@ -209,20 +225,26 @@ function showCraftsmen() {
 
     if (!selectedProfession) {
         const professions = [
-            "معلم صحي",
-            "كهربجي",
-            "نجار",
-            "حداد",
-            "دهان",
-            "مبلّط",
-            "فني تكييف وتبريد",
-            "فني أجهزة كهربائية",
-            "فني ألمنيوم",
-            "فني زجاج",
+            "سبّاك",
+            "كهربائي",
+            "نجّار",
+            "حدّاد",
+            "دهّان",
+            "فنّي بلاط وسيراميك",
+            "فنّي تكييف وتبريد",
+            "فنّي صيانة أجهزة كهربائية",
+            "فنّي ألمنيوم",
+            "فنّي زجاج",
             "عامل تنظيف",
             "مكافحة حشرات",
-            "نقل عفش",
-            "مهنة أخرى"
+            "نقل أثاث",
+            "فنّي تمديدات صحية",
+            "فنّي أقفال ومفاتيح",
+            "فنّي ستالايت",
+            "فنّي إنترنت وشبكات",
+            "فنّي طاقة شمسية",
+            "فنّي سخّانات مياه",
+            "فنّي عزل أسطح ورطوبة"
         ];
 
         const groups = {};
@@ -267,7 +289,7 @@ function showCraftsmen() {
     const filtered = craftsmen.filter(function(person) {
         const description = person.description || "";
         const parts = description.split(" - ");
-        const profession = parts[0] || "مهنة أخرى";
+        const profession = getProfession(person);
 
         if (profession !== selectedProfession) return false;
 
