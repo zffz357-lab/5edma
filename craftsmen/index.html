@@ -388,7 +388,20 @@ async function loadCraftsmen() {
         return;
     }
 
-    craftsmen = data || [];
+    const { data: hiddenRows, error: hiddenError } = await supabaseClient
+        .from("hidden_craftsman_professions")
+        .select("profession");
+
+    if (hiddenError) {
+        count.textContent = "تعذر تحميل إعدادات المهن.";
+        list.innerHTML = '<div class="message">حدث خطأ أثناء تحميل المهن.</div>';
+        console.error(hiddenError);
+        return;
+    }
+
+    const hidden = new Set((hiddenRows || []).map(row => row.profession));
+
+    craftsmen = (data || []).filter(person => !hidden.has(getProfession(person)));
     showCraftsmen();
 }
 

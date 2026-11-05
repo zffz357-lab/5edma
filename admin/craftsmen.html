@@ -108,6 +108,17 @@ button { width: 100%; padding: 14px;
 }
 </style>
 
+
+<div class="form-box" id="managementBox">
+    <h2>📋 إدارة المعلمين والمهن</h2>
+    <p>من هون فيك تعدّل بيانات المعلمين وتحذفهم، أو تخفي مهنة وتعيد إظهارها.</p>
+    <div id="professionsManagement"></div>
+    <hr style="border-color:#38516e;margin:25px 0">
+    <h2>👷 المعلمون المسجلون</h2>
+    <input type="text" id="adminSearch" placeholder="ابحث عن اسم المعلم أو المهنة">
+    <div id="craftsmenList">جاري تجهيز القائمة...</div>
+</div>
+
 </div>
 </div>
 
@@ -122,6 +133,161 @@ window.supabase.createClient(
     SUPABASE_URL, SUPABASE_KEY );
 </script>
 <script>
+
+
+function getProfession(person) {
+    const original = (person.description || "").split(" - ")[0].trim() || "مهنة أخرى";
+    const aliases = {
+        "معلم صحي": "سبّاك",
+        "كهربجي": "كهربائي",
+        "نجار": "نجّار",
+        "حداد": "حدّاد",
+        "دهان": "دهّان",
+        "مبلّط": "فنّي بلاط وسيراميك",
+        "فني تكييف وتبريد": "فنّي تكييف وتبريد",
+        "فني أجهزة كهربائية": "فنّي صيانة أجهزة كهربائية",
+        "فني ألمنيوم": "فنّي ألمنيوم",
+        "فني زجاج": "فنّي زجاج",
+        "نقل عفش": "نقل أثاث"
+    };
+    return aliases[original] || original;
+}
+
+
+let editingId = null;
+
+async function loadManagement() {
+    const list = document.getElementById("craftsmenList");
+    const professionsBox = document.getElementById("professionsManagement");
+
+    list.textContent = "جاري تحميل المعلمين...";
+
+    const { data: people, error } = await supabaseClient
+        .from("section_items")
+        .select("id,title,description,phone,whatsapp,area,is_active")
+        .eq("section_id", "877ae885-4a63-4b17-9848-d1c555c1526f")
+        .order("title", { ascending: true });
+
+    if (error) {
+        list.textContent = "تعذر تحميل المعلمين: " + error.message;
+        return;
+    }
+
+    const { data: hiddenRows, error: hiddenError } = await supabaseClient
+        .from("hidden_craftsman_professions")
+        .select("profession");
+
+    if (hiddenError) {
+        professionsBox.textContent = "تعذر تحميل المهن المخفية: " + hiddenError.message;
+        return;
+    }
+
+    const hidden = new Set((hiddenRows || []).map(row => row.profession));
+    const professions = [...new Set((people || []).map(getProfession))].sort();
+
+    professionsBox.innerHTML = "<h3>إظهار وإخفاء المهن</h3>";
+
+    professions.forEach(profession => {
+        const row = document.createElement("div");
+        row.style.cssText = "padding:10px;margin:8px 0;background:#172b40;border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap";
+
+        const name = document.createElement("strong");
+        name.textContent = profession;
+
+        const button = document.createElement("button");
+        button.textContent = hidden.has(profession) ? "إظهار المهنة" : "إخفاء المهنة";
+        button.style.background = hidden.has(profession) ? "#16834a" : "#b7791f";
+
+        button.addEventListener("click", async () => {
+            if (hidden.has(profession)) {
+                const { error } = await supabaseClient
+                    .from("hidden_craftsman_professions")
+                    .delete()
+                    .eq("profession", profession);
+                if (error) return alert("تعذر إظهار المهنة: " + error.message);
+            } else {
+                const { error } = await supabaseClient
+                    .from("hidden_craftsman_professions")
+                    .insert({ profession });
+                if (error) return alert("تعذر إخفاء المهنة: " + error.message);
+            }
+            await loadManagement();
+        });
+
+        row.append(name, button);
+        professionsBox.appendChild(row);
+    });
+
+    if (!professions.length) professionsBox.textContent = "لا توجد مهن مسجلة حالياً.";
+
+    const search = document.getElementById("adminSearch");
+    const renderPeople = () => {
+        const term = search.value.trim().toLowerCase();
+        const filtered = (people || []).filter(person =>
+            [person.title, person.description, person.phone, person.area]
+                .some(value => String(value || "").toLowerCase().includes(term))
+        );
+
+        list.innerHTML = "";
+        if (!filtered.length) {
+            list.textContent = "لا يوجد معلمون مطابقون للبحث.";
+            return;
+        }
+
+        filtered.forEach(person => {
+            const card = document.createElement("div");
+            card.style.cssText = "padding:12px;margin:10px 0;background:#172b40;border-radius:10px";
+
+            const title = document.createElement("h3");
+            title.textContent = person.title || "بدون اسم";
+
+            const details = document.createElement("p");
+            details.textContent = getProfession(person) + " | " + (person.phone || "") + " | " + (person.area || "");
+
+            const status = document.createElement("p");
+            status.textContent = person.is_active ? "الحالة: ظاهر" : "الحالة: غير نشط";
+
+            const actions = document.createElement("div");
+            actions.style.cssText = "display:flex;gap:8px;flex-wrap:wrap";
+
+            const editButton = document.createElement("button");
+            editButton.textContent = "✏️ تعديل";
+            editButton.addEventListener("click", () => {
+                document.getElementById("name").value = person.title || "";
+                document.getElementById("profession").value = getProfession(person);
+                document.getElementById("phone").value = person.phone || "";
+                document.getElementById("whatsapp").value = person.whatsapp || "";
+                document.getElementById("area").value = person.area || "";
+                document.getElementById("description").value =
+                    (person.description || "").split(" - ").slice(1).join(" - ");
+                editingId = person.id;
+                document.getElementById("saveBtn").textContent = "حفظ التعديلات";
+                document.getElementById("name").scrollIntoView({ behavior: "smooth" });
+            });
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "🗑️ حذف";
+            deleteButton.style.background = "#b83232";
+            deleteButton.addEventListener("click", async () => {
+                if (!confirm("متأكد من حذف المعلم " + (person.title || "") + "؟ لا يمكن التراجع عن الحذف.")) return;
+                const { error } = await supabaseClient
+                    .from("section_items")
+                    .delete()
+                    .eq("id", person.id);
+                if (error) return alert("تعذر حذف المعلم: " + error.message);
+                alert("تم حذف المعلم.");
+                await loadManagement();
+            });
+
+            actions.append(editButton, deleteButton);
+            card.append(title, details, status, actions);
+            list.appendChild(card);
+        });
+    };
+
+    search.oninput = renderPeople;
+    renderPeople();
+}
 
 async function checkAdminAccess() {
     const loginBox = document.getElementById("loginBox");
@@ -143,6 +309,7 @@ async function checkAdminAccess() {
 
         loginBox.style.display = "none";
         container.style.display = "block";
+        await loadManagement();
     }
 
     try {
@@ -190,7 +357,50 @@ async function () {
 alert("يرجى إدخال اسم المعلم والمهنة ورقم الهاتف"); return;
 
     }
-    const { error } = await
+    const payload = {
+        title: name,
+        description: profession + " - " + description,
+        phone: phone,
+        whatsapp: whatsapp,
+        area: area,
+        is_active: true
+    };
+
+    let result;
+
+    if (editingId) {
+        result = await supabaseClient
+            .from("section_items")
+            .update(payload)
+            .eq("id", editingId);
+    } else {
+        result = await supabaseClient
+            .from("section_items")
+            .insert([{
+                section_id: "877ae885-4a63-4b17-9848-d1c555c1526f",
+                ...payload
+            }]);
+    }
+
+    const { error } = result;
+
+    if (error) { alert("تعذر حفظ المعلم: " + error.message); return; }
+
+    editingId = null;
+    document.getElementById("saveBtn").textContent = "حفظ المعلم";
+    alert("تم حفظ بيانات المعلم بنجاح");
+    document.getElementById("name").value = "";
+    document.getElementById("profession").value = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("whatsapp").value = "";
+    document.getElementById("area").value = "";
+    document.getElementById("description").value = "";
+
+    await loadManagement();
+    return;
+
+    /* old save code follows but is no longer reached */
+    const { error: oldError } = await
     supabaseClient
         .from("section_items")
 
