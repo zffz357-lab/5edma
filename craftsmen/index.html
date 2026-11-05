@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#102b46">
+<title>المهن والخدمات | 5EDMA</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f5f9;
+    color: #102b46;
+}
+
+header {
+    background: #102b46;
+    color: white;
+    text-align: center;
+    padding: 28px 15px;
+    border-radius: 0 0 28px 28px;
+}
+
+.logo {
+    color: #ff9d27;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+header h1 {
+    margin: 10px 0;
+    font-size: 23px;
+}
+
+header p {
+    color: #dce7f2;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px 15px;
+}
+
+.search {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    outline-color: #ff9d27;
+}
+
+.count {
+    color: #777;
+    margin: 10px 3px 15px;
+}
+
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 14px #0000000c;
+}
+
+.card h3 {
+    margin: 0 0 10px;
+    font-size: 19px;
+}
+
+.profession {
+    color: #e58a16;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.info {
+    color: #666;
+    font-size: 14px;
+    margin: 7px 0;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.buttons a {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    padding: 12px 8px;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+}
+
+.call {
+    background: #102b46;
+}
+
+.whatsapp {
+    background: #159b55;
+}
+
+.message {
+    text-align: center;
+    color: #777;
+    padding: 25px 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">5EDMA 🛠️</div>
+    <h1>المهن والخدمات</h1>
+    <p>ابحث عن المعلم المناسب لمنطقتك</p>
+</header>
+
+<div class="container">
+
+    <input
+        id="search"
+        class="search"
+        type="search"
+        placeholder="ابحث عن معلم أو مهنة أو منطقة..."
+    >
+
+    <div id="count" class="count">جاري تحميل المعلمين...</div>
+
+    <div id="list"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://mankbdsgolwabyjlhgbq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_TyeZfdpFSx0dTmZcZVrGTQ_gaVhF92q";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+const SECTION_ID = "877ae885-4a63-4b17-9848-d1c555c1526f";
+
+const list = document.getElementById("list");
+const search = document.getElementById("search");
+const count = document.getElementById("count");
+
+let craftsmen = [];
+
+function escapeHTML(value) {
+    return String(value || "").replace(/[&<>"']/g, function(char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+    });
+}
+
+function cleanPhone(value) {
+    return String(value || "").replace(/[^\d+]/g, "");
+}
+
+function showCraftsmen() {
+    const term = search.value.trim().toLowerCase();
+
+    const filtered = craftsmen.filter(function(person) {
+        const description = person.description || "";
+        const profession = description.split(" - ")[0] || "";
+
+        const text = [
+            person.title,
+            profession,
+            person.area,
+            description
+        ].join(" ").toLowerCase();
+
+        return text.includes(term);
+    });
+
+    count.textContent = "عدد المعلمين: " + filtered.length;
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="message">ما لقينا معلمين مطابقين للبحث.</div>';
+        return;
+    }
+
+    list.innerHTML = filtered.map(function(person) {
+        const description = person.description || "";
+        const parts = description.split(" - ");
+        const profession = parts[0] || "مهنة";
+        const extra = parts.slice(1).join(" - ");
+
+        const phone = cleanPhone(person.phone);
+        const whatsapp = cleanPhone(person.whatsapp || person.phone);
+
+        return `
+            <div class="card">
+                <h3>${escapeHTML(person.title)}</h3>
+
+                <div class="profession">
+                    🛠️ ${escapeHTML(profession)}
+                </div>
+
+                ${person.area ? `
+                    <div class="info">
+                        📍 المنطقة: ${escapeHTML(person.area)}
+                    </div>
+                ` : ""}
+
+                ${extra ? `
+                    <div class="info">
+                        ${escapeHTML(extra)}
+                    </div>
+                ` : ""}
+
+                <div class="buttons">
+                    ${phone ? `
+                        <a class="call" href="tel:${escapeHTML(phone)}">
+                            📞 اتصال
+                        </a>
+                    ` : ""}
+
+                    ${whatsapp ? `
+                        <a class="whatsapp"
+                           href="https://wa.me/${escapeHTML(whatsapp.replace("+", ""))}"
+                           target="_blank">
+                            واتساب
+                        </a>
+                    ` : ""}
+                </div>
+            </div>
+        `;
+    }).join("");
+}
+
+async function loadCraftsmen() {
+    const { data, error } = await supabaseClient
+        .from("section_items")
+        .select("title, description, phone, whatsapp, area, is_active")
+        .eq("section_id", SECTION_ID)
+        .eq("is_active", true)
+        .order("title", { ascending: true });
+
+    if (error) {
+        count.textContent = "تعذر تحميل المعلمين.";
+        list.innerHTML = `
+            <div class="message">
+                تأكد من اتصال الإنترنت وصلاحيات عرض البيانات.
+            </div>
+        `;
+        console.error(error);
+        return;
+    }
+
+    craftsmen = data || [];
+    showCraftsmen();
+}
+
+search.addEventListener("input", showCraftsmen);
+
+loadCraftsmen();
+</script>
+
+</body>
+</html>
